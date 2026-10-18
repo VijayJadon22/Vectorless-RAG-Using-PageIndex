@@ -22,3 +22,27 @@ doc_id=result['doc_id']
 
 print("Uploaded")
 print(f"Doc ID: {doc_id}")
+
+# ── Poll until processing is complete ───────────────────────────────────────
+# PageIndex builds the tree asynchronously.
+# For a 50-page PDF this typically takes 30–90 seconds.
+
+print("⏳ Building tree index...")
+print("   (This runs once per document — the index is cached for reuse)")
+
+while True:
+    status_result=pi_client.get_document(doc_id)
+    status=status_result.get("status")
+    print(f"   Status: {status}")
+
+    if status == "completed":
+        print("\n✅ Tree index ready!")
+        break
+    elif status == "failed":
+        print("\n❌ Processing failed. Check your PDF format.")
+        break
+
+    time.sleep(5)
+
+
+# Fetch the full tree
